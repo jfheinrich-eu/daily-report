@@ -24,6 +24,7 @@ Changelog = "https://github.com/jfheinrich-eu/daily-report/releases"
 Logo = "https://github.com/jfheinrich-eu/daily-report/raw/main/daily-report-logo.png"
 
 [tool.poetry]
+packages = [{ include = "daily_report", from = "src" }]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
@@ -45,7 +46,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra --tb=short --strict-markers --cov=imap_cleanup --cov-report=term-missing --cov-report=html:coverage"
+addopts = "-ra --tb=short --strict-markers --cov=daily_report --cov-report=term-missing --cov-report=html:coverage"
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
@@ -56,7 +57,7 @@ log_cli_level = "INFO"
 
 [tool.coverage.run]
 branch = true
-source = ["imap_cleanup"]
+source = ["daily_report"]
 
 [tool.coverage.report]
 show_missing = true

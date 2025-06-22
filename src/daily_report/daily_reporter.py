@@ -7,7 +7,7 @@ from typing import Any
 from github import Github
 from openai import OpenAI
 
-from env_check import EnvCheckError, check_env_vars
+from .env_check import EnvCheckError, check_env_vars
 
 
 class DailyReporter:

@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch, MagicMock
 
-from src.daily_reporter import DailyReporter
+from daily_report.daily_reporter import DailyReporter
 
 
 def valid_env():
@@ -18,9 +18,9 @@ def valid_env():
     }
 
 
-@patch("src.daily_reporter.check_env_vars")
-@patch("src.daily_reporter.Github")
-@patch("src.daily_reporter.OpenAI")
+@patch("daily_report.daily_reporter.check_env_vars")
+@patch("daily_report.daily_reporter.Github")
+@patch("daily_report.daily_reporter.OpenAI")
 def test_run_sends_email(
     mock_openai: MagicMock,
     mock_github: MagicMock,
@@ -47,14 +47,14 @@ def test_run_sends_email(
     ]
 
     # Patch smtplib.SMTP
-    with patch("src.daily_reporter.smtplib.SMTP") as _mock_smtp:
+    with patch("daily_report.daily_reporter.smtplib.SMTP") as _mock_smtp:
         reporter = DailyReporter()
         reporter.run()
 
 
-@patch("src.daily_reporter.check_env_vars")
-@patch("src.daily_reporter.Github")
-@patch("src.daily_reporter.OpenAI")
+@patch("daily_report.daily_reporter.check_env_vars")
+@patch("daily_report.daily_reporter.Github")
+@patch("daily_report.daily_reporter.OpenAI")
 def test_analyze_commits_with_gpt_empty(
     mock_openai: MagicMock,
     mock_github: MagicMock,

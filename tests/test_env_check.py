@@ -2,7 +2,7 @@ import os
 import pytest
 from unittest.mock import patch, MagicMock
 
-from src.env_check import check_env_vars, EnvCheckError
+from daily_report.env_check import check_env_vars, EnvCheckError
 
 
 @pytest.fixture(autouse=True)
@@ -31,7 +31,7 @@ def valid_env():
     }
 
 
-@patch("src.env_check.Github")
+@patch("daily_report.env_check.Github")
 def test_check_env_vars_success(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
     env = valid_env()
     for k, v in env.items():
@@ -43,7 +43,7 @@ def test_check_env_vars_success(mock_github: MagicMock, monkeypatch: pytest.Monk
     assert result == env
 
 
-@patch("src.env_check.Github")
+@patch("daily_report.env_check.Github")
 def test_missing_env_vars_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
     # Nur ein Teil der Variablen gesetzt
     os.environ["GITHUB_TOKEN"] = "token"
@@ -52,7 +52,7 @@ def test_missing_env_vars_raises(mock_github: MagicMock, monkeypatch: pytest.Mon
     assert "REPO_NAME ist nicht gesetzt." in str(excinfo.value)
 
 
-@patch("src.env_check.Github")
+@patch("daily_report.env_check.Github")
 def test_invalid_repo_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
     env = valid_env()
     for k, v in env.items():
@@ -63,7 +63,7 @@ def test_invalid_repo_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyP
     assert "ist ungültig oder nicht erreichbar" in str(excinfo.value)
 
 
-@patch("src.env_check.Github")
+@patch("daily_report.env_check.Github")
 def test_invalid_smtp_port_nonint(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
     env = valid_env()
     env["SMTP_PORT"] = "abc"
@@ -75,7 +75,7 @@ def test_invalid_smtp_port_nonint(mock_github: MagicMock, monkeypatch: pytest.Mo
     assert "SMTP_PORT 'abc' ist keine Zahl." in str(excinfo.value)
 
 
-@patch("src.env_check.Github")
+@patch("daily_report.env_check.Github")
 def test_invalid_smtp_port_range(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
     env = valid_env()
     env["SMTP_PORT"] = "70000"
