@@ -57,10 +57,13 @@ def test_missing_env_vars_raises(
     mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
 ):
     # Nur ein Teil der Variablen gesetzt
-    os.environ["GITHUB_TOKEN"] = "token"
+    env = valid_env()
+    for k, v in env.items():
+        if k != "REPO_NAME":
+            os.environ[k] = v
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
-    assert "REPO_NAME ist nicht gesetzt." in str(excinfo.value)
+    assert "REPO_NAME is not set." in str(excinfo.value)
 
 
 @patch("daily_report.env_check.Github")
@@ -71,7 +74,7 @@ def test_invalid_repo_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyP
     mock_github.return_value.get_repo.side_effect = Exception("not found")
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
-    assert "ist ungültig oder nicht erreichbar" in str(excinfo.value)
+    assert "is invalid or not accessible:" in str(excinfo.value)
 
 
 @patch("daily_report.env_check.Github")
@@ -85,7 +88,7 @@ def test_invalid_smtp_port_nonint(
     mock_github.return_value.get_repo.return_value = MagicMock()
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
-    assert "SMTP_PORT 'abc' ist keine Zahl." in str(excinfo.value)
+    assert "SMTP_PORT 'abc' is not a number." in str(excinfo.value)
 
 
 @patch("daily_report.env_check.Github")
@@ -99,4 +102,4 @@ def test_invalid_smtp_port_range(
     mock_github.return_value.get_repo.return_value = MagicMock()
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
-    assert "SMTP_PORT '70000' ist keine gültige Portnummer." in str(excinfo.value)
+    assert "SMTP_PORT '70000' is not a valid port number." in str(excinfo.value)

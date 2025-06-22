@@ -62,4 +62,4 @@ def test_analyze_commits_with_gpt_empty(
     mock_check_env_vars.return_value = env
     reporter = DailyReporter()
     result = reporter.analyze_commits_with_gpt([])
-    assert "Keine Commits" in result
+    assert "No commits" in result
