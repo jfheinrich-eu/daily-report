@@ -8,7 +8,7 @@
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 ![Maintainer](https://img.shields.io/badge/maintainer-@jfheinrich-blue)
 [![GitHub Issues](https://img.shields.io/github/issues/jfheinrich-eu/daily-report.svg)](https://github.com/jfheinrich-eu/daily-report/issues)
-[![GitHub pull-requests](https://img.shields.io/github/issues-pr/asteriosframework/core.svg)](https://GitHub.com/Naereen/StrapDown.js/pull/)
+[![GitHub pull-requests](https://img.shields.io/github/issues-pr/jfheinrich-eu/daily-report.svg)](https://GitHub.com/Naereen/StrapDown.js/pull/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
