@@ -7,7 +7,7 @@
 (python -m pip install --user pip) && \
 (pip install --upgrade pip) && \
 (python -m pip install --user poetry) && \
-(if [ -f pyproject.toml ]; then poetry install --no-root --with dev; fi)
+(if [ -f pyproject.toml ]; then poetry self add 'poethepoet[poetry_plugin]' && poetry install --no-root --with dev; fi)
 
 /usr/bin/keychain \
 --dir ~/.ssh/.keychain \
