@@ -35,4 +35,3 @@ GitHub Daily Report Generator (Markdown + Email)
 ## Credits
 
 - [Joerg Heinrich](@jfheinrich)
-  
