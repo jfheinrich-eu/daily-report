@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade poetry
-          poetry install .[dev]
+          poetry install --with dev
 
       - name: Lint
         run: |

@@ -1,6 +1,7 @@
 [project]
 name = "daily-report"
-version = "0.1.0"
+version = "0.0.0"
+dynamic = ["version"]
 description = "GitHub Daily Report Generator (Markdown + Email)"
 authors = [{ name = "Joerg Heinrich", email = "contact@jfheinrich.eu" }]
 license = { text = "MIT" }
