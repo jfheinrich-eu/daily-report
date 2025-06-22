@@ -1,5 +1,5 @@
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from daily_report.daily_reporter import DailyReporter
 
@@ -22,9 +22,7 @@ def valid_env():
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_run_sends_email(
-    mock_openai: MagicMock,
-    mock_github: MagicMock,
-    mock_check_env_vars: MagicMock
+    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
 ):
     # Arrange
     env = valid_env()
@@ -56,9 +54,7 @@ def test_run_sends_email(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_analyze_commits_with_gpt_empty(
-    mock_openai: MagicMock,
-    mock_github: MagicMock,
-    mock_check_env_vars: MagicMock
+    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
 ):
     env = valid_env()
     for k, v in env.items():

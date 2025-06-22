@@ -1,4 +1,5 @@
 import os
+
 from github import Github
 
 
@@ -35,14 +36,16 @@ def check_env_vars() -> dict[str, str]:
             g.get_repo(env["REPO_NAME"])
         except Exception as e:
             errors.append(
-                f"REPO_NAME '{env['REPO_NAME']}' is invalid or not accessible: {e}")
+                f"REPO_NAME '{env['REPO_NAME']}' is invalid or not accessible: {e}"
+            )
 
     if env["SMTP_PORT"]:
         try:
             port = int(env["SMTP_PORT"])
             if not (0 < port < 65536):
                 errors.append(
-                    f"SMTP_PORT '{env['SMTP_PORT']}' is not a valid port number.")
+                    f"SMTP_PORT '{env['SMTP_PORT']}' is not a valid port number."
+                )
         except ValueError:
             errors.append(f"SMTP_PORT '{env['SMTP_PORT']}' is not a number.")
 

@@ -1,17 +1,24 @@
 import os
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from daily_report.env_check import check_env_vars, EnvCheckError
+import pytest
+
+from daily_report.env_check import EnvCheckError, check_env_vars
 
 
 @pytest.fixture(autouse=True)
 def clear_env(monkeypatch: pytest.MonkeyPatch):
     # Vor jedem Test alle relevanten ENV-Variablen entfernen
     keys = [
-        "GITHUB_TOKEN", "REPO_NAME", "EMAIL_SENDER", "EMAIL_USER",
-        "EMAIL_RECEIVER", "EMAIL_PASSWORD", "OPENAI_API_KEY",
-        "SMTP_SERVER", "SMTP_PORT"
+        "GITHUB_TOKEN",
+        "REPO_NAME",
+        "EMAIL_SENDER",
+        "EMAIL_USER",
+        "EMAIL_RECEIVER",
+        "EMAIL_PASSWORD",
+        "OPENAI_API_KEY",
+        "SMTP_SERVER",
+        "SMTP_PORT",
     ]
     for key in keys:
         monkeypatch.delenv(key, raising=False)
@@ -32,7 +39,9 @@ def valid_env():
 
 
 @patch("daily_report.env_check.Github")
-def test_check_env_vars_success(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
+def test_check_env_vars_success(
+    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+):
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -44,7 +53,9 @@ def test_check_env_vars_success(mock_github: MagicMock, monkeypatch: pytest.Monk
 
 
 @patch("daily_report.env_check.Github")
-def test_missing_env_vars_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
+def test_missing_env_vars_raises(
+    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+):
     # Nur ein Teil der Variablen gesetzt
     os.environ["GITHUB_TOKEN"] = "token"
     with pytest.raises(EnvCheckError) as excinfo:
@@ -64,7 +75,9 @@ def test_invalid_repo_raises(mock_github: MagicMock, monkeypatch: pytest.MonkeyP
 
 
 @patch("daily_report.env_check.Github")
-def test_invalid_smtp_port_nonint(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
+def test_invalid_smtp_port_nonint(
+    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+):
     env = valid_env()
     env["SMTP_PORT"] = "abc"
     for k, v in env.items():
@@ -76,7 +89,9 @@ def test_invalid_smtp_port_nonint(mock_github: MagicMock, monkeypatch: pytest.Mo
 
 
 @patch("daily_report.env_check.Github")
-def test_invalid_smtp_port_range(mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch):
+def test_invalid_smtp_port_range(
+    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+):
     env = valid_env()
     env["SMTP_PORT"] = "70000"
     for k, v in env.items():

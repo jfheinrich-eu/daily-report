@@ -72,6 +72,7 @@ max_line_length = 88
 ignore = ["E501", "E402"]
 inline-quotes = "double"
 exclude = [".git", "__pycache__", "build", "dist"]
+per-file-ignores = ["tests/test_daily_reporter.py:F481"]
 
 [tool.poetry.requires-plugins]
 poethepoet = { version = "~0.35.0", extras = ["poetry_plugin"] }

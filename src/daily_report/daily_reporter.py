@@ -1,9 +1,9 @@
+import os
 import smtplib
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any
-import os
 
 from github import Github
 from openai import OpenAI
@@ -19,6 +19,7 @@ class DailyReporter:
             print("❌ Fehlerhafte Konfiguration der Umgebungsvariablen:")
             print(e)
             import sys
+
             sys.exit(1)
 
         self.GITHUB_TOKEN = env["GITHUB_TOKEN"]
@@ -116,7 +117,7 @@ Analysiere mögliche Probleme, TODOs oder Code-Smells und gib Empfehlungen.
         self.send_email(subject, report_md)
 
         # Save report to file
-        with open(filename, 'w') as reportfile:
+        with open(filename, "w") as reportfile:
             reportfile.write(report_md)
 
         # Provide output for GitHub Actions
