@@ -45,7 +45,7 @@ def test_run_sends_email(
     ]
 
     # Patch smtplib.SMTP
-    with patch("daily_report.daily_reporter.smtplib.SMTP") as _mock_smtp:
+    with patch("daily_report.daily_reporter.smtplib.SMTP") as _mock_smtp:  # noqa: F841
         reporter = DailyReporter()
         reporter.run()
 
