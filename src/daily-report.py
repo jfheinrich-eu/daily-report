@@ -1,24 +1,36 @@
 # GitHub Daily Report Generator (Markdown + Email)
 
-import os
 import smtplib
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Any
 
 from github import Github
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from env_check import EnvCheckError, check_env_vars
 
-# === Konfiguration ===
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-REPO_NAME = "jfheinrich-eu/imap-cleanup"
-EMAIL_SENDER = "joerg.f.heinrich@googlemail.com"
-EMAIL_USER = "joerg.f.heinrich@googlemail.com"
-EMAIL_RECEIVER = "admin@jfheinrich.eu"
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+try:
+    env = check_env_vars()
+except EnvCheckError as e:
+    print("❌ Fehlerhafte Konfiguration der Umgebungsvariablen:")
+    print(e)
+    import sys
+
+    sys.exit(1)
+
+GITHUB_TOKEN = env["GITHUB_TOKEN"]
+REPO_NAME = env["REPO_NAME"]
+EMAIL_SENDER = env["EMAIL_SENDER"]
+EMAIL_USER = env["EMAIL_USER"]
+EMAIL_RECEIVER = env["EMAIL_RECEIVER"]
+EMAIL_PASSWORD = env["EMAIL_PASSWORD"]
+OPENAI_API_KEY = env["OPENAI_API_KEY"]
+SMTP_SERVER = env["SMTP_SERVER"]
+SMTP_PORT = int(env["SMTP_PORT"])
+
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # === Initialisierung ===
 g = Github(GITHUB_TOKEN)
@@ -27,7 +39,8 @@ since = datetime.now(timezone.utc) - timedelta(days=2)
 
 # === Änderungen sammeln ===
 commits = repo.get_commits(since=since)
-commit_data = []
+
+commit_data: list[dict[str, Any]] = []
 for commit in commits:
     commit_data.append(
         {
@@ -42,7 +55,7 @@ for commit in commits:
 # === GPT-Analyse ===
 
 
-def analyze_commits_with_gpt(commits):
+def analyze_commits_with_gpt(commits: list[dict[str, Any]]):
     if not commits:
         return "Keine Commits in den letzten 24h."
 
@@ -62,7 +75,11 @@ Analysiere mögliche Probleme, TODOs oder Code-Smells und gib Empfehlungen.
         messages=[{"role": "user", "content": prompt}],
         temperature=0.4,
     )
-    return response.choices[0].message.content.strip()
+    content = response.choices[0].message.content
+    if content is not None:
+        return content.strip()
+    else:
+        return "Keine Zusammenfassung generiert (Antwort war leer)."
 
 
 report_md = analyze_commits_with_gpt(commit_data)
@@ -70,7 +87,7 @@ report_md = analyze_commits_with_gpt(commit_data)
 # === Report als E-Mail senden ===
 
 
-def send_email(subject, body_md):
+def send_email(subject: str, body_md: str):
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = EMAIL_SENDER
@@ -89,9 +106,13 @@ def send_email(subject, body_md):
     msg.attach(part1)
     msg.attach(part2)
 
-    with smtplib.SMTP("smtp.gmail.com", port="587") as server:
+    with smtplib.SMTP(SMTP_SERVER, port=SMTP_PORT) as server:
         server.ehlo()
         server.starttls()
+        if not EMAIL_PASSWORD:
+            raise ValueError(
+                "EMAIL_PASSWORD environment variable is not set or is empty."
+            )
         server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
 
