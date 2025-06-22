@@ -8,8 +8,8 @@ class EnvCheckError(Exception):
 
 def check_env_vars() -> dict[str, str]:
     """
-    Prüft alle benötigten Umgebungsvariablen und gibt ein Dict mit Namen und Wert zurück.
-    Bei Fehlern wird eine EnvCheckError Exception geworfen.
+    Checks all required environment variables and returns a dict with their names and values.
+    Raises EnvCheckError if any variable is missing or invalid.
     """
     env = {
         "GITHUB_TOKEN": os.getenv("GITHUB_TOKEN", ""),
@@ -26,25 +26,25 @@ def check_env_vars() -> dict[str, str]:
     errors: list[str] = []
     for key, value in env.items():
         if not value:
-            errors.append(f"{key} ist nicht gesetzt.")
+            errors.append(f"{key} is not set.")
 
-    # Plausibilität prüfen
+    # Plausibility checks
     if env["REPO_NAME"] and env["GITHUB_TOKEN"]:
         try:
             g = Github(env["GITHUB_TOKEN"])
             g.get_repo(env["REPO_NAME"])
         except Exception as e:
             errors.append(
-                f"REPO_NAME '{env['REPO_NAME']}' ist ungültig oder nicht erreichbar: {e}")
+                f"REPO_NAME '{env['REPO_NAME']}' is invalid or not accessible: {e}")
 
     if env["SMTP_PORT"]:
         try:
             port = int(env["SMTP_PORT"])
             if not (0 < port < 65536):
                 errors.append(
-                    f"SMTP_PORT '{env['SMTP_PORT']}' ist keine gültige Portnummer.")
+                    f"SMTP_PORT '{env['SMTP_PORT']}' is not a valid port number.")
         except ValueError:
-            errors.append(f"SMTP_PORT '{env['SMTP_PORT']}' ist keine Zahl.")
+            errors.append(f"SMTP_PORT '{env['SMTP_PORT']}' is not a number.")
 
     if errors:
         raise EnvCheckError("\n".join(errors))

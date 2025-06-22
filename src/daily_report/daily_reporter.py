@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any
+import os
 
 from github import Github
 from openai import OpenAI
@@ -106,16 +107,22 @@ Analysiere mögliche Probleme, TODOs oder Code-Smells und gib Empfehlungen.
             server.sendmail(self.EMAIL_SENDER, self.EMAIL_RECEIVER, msg.as_string())
 
     def run(self):
-        heute = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        subject = f"GitHub Daily Report – {self.REPO_NAME} – {heute}"
-        filename = f"{heute}-{self.REPO_NAME.replace('/', '-')}.md"
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        subject = f"GitHub Daily Report – {self.REPO_NAME} – {today}"
+        filename = f"{today}-{self.REPO_NAME.replace('/', '-')}.md"
 
         commit_data = self.collect_commits()
         report_md = self.analyze_commits_with_gpt(commit_data)
         self.send_email(subject, report_md)
 
-        # Optional: Report als Datei speichern
+        # Save report to file
         with open(filename, 'w') as reportfile:
             reportfile.write(report_md)
 
-        print("✅ Report generiert und gesendet.")
+        # Provide output for GitHub Actions
+        github_output = os.environ.get("GITHUB_OUTPUT")
+        if github_output:
+            with open(github_output, "a") as fh:
+                print(f"report<<EOF\n{report_md}\nEOF", file=fh)
+
+        print("✅ Report generated and sent.")
