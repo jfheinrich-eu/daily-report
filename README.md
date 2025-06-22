@@ -58,8 +58,8 @@ poetry install
 
 ## Description
 
-**Daily Report** is a GitHub Action and Python tool that generates a daily Markdown summary of recent commits in a GitHub repository.  
-It leverages OpenAI to analyze commit messages, highlight issues, TODOs, and code smells, and provides actionable recommendations.  
+**Daily Report** is a GitHub Action and Python tool that generates a daily Markdown summary of recent commits in a GitHub repository.
+It leverages OpenAI to analyze commit messages, highlight issues, TODOs, and code smells, and provides actionable recommendations.
 The generated report is sent via email and can also be used as an output in your CI/CD workflows.
 
 Typical use cases include:
@@ -71,7 +71,7 @@ Typical use cases include:
 
 ### As a GitHub Action
 
-You can schedule the action to run daily, or trigger it manually or on push.  
+You can schedule the action to run daily, or trigger it manually or on push.
 Below is an example workflow that runs the report every day at 06:00 UTC and sends the report via email:
 
 ```yaml
