@@ -49,6 +49,7 @@ addopts = "-ra --tb=short --strict-markers --cov=imap_cleanup --cov-report=term-
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+pythonpath = ["src"]
 testpaths = ["tests"]
 log_cli = true
 log_cli_level = "INFO"
