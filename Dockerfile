@@ -1,7 +1,4 @@
-FROM python:3.12-slim
-
-# Update and upgrade to fix vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get clean
+FROM python:3.12.11-alpine3.22
 
 WORKDIR /app
 
