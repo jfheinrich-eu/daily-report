@@ -16,7 +16,7 @@ class DailyReporter:
         try:
             env = check_env_vars()
         except EnvCheckError as e:
-            print("❌ Fehlerhafte Konfiguration der Umgebungsvariablen:")
+            print("❌ Invalid configuration of environment variables:")
             print(e)
             import sys
 
@@ -54,17 +54,17 @@ class DailyReporter:
 
     def analyze_commits_with_gpt(self, commits: list[dict[str, Any]]) -> str:
         if not commits:
-            return "Keine Commits in den letzten 24h."
+            return "No commits in the last 24 hours."
 
         formatted = "\n".join(
             f"- [{c['sha'][:7]}] {c['message']} ({c['author']})" for c in commits
         )
         prompt = f"""
-Hier ist eine Liste von Git-Commits:
+Here is a list of Git commits:
 {formatted}
 
-Erstelle eine tägliche Zusammenfassung in Markdown.
-Analysiere mögliche Probleme, TODOs oder Code-Smells und gib Empfehlungen.
+Create a daily summary in Markdown.
+Analyze possible issues, TODOs, or code smells and provide recommendations.
 """
 
         response = self.client.chat.completions.create(
@@ -76,7 +76,7 @@ Analysiere mögliche Probleme, TODOs oder Code-Smells und gib Empfehlungen.
         if content is not None:
             return content.strip()
         else:
-            return "Keine Zusammenfassung generiert (Antwort war leer)."
+            return "No summary generated (response was empty)."
 
     def send_email(self, subject: str, body_md: str):
         msg = MIMEMultipart("alternative")
