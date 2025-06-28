@@ -1,5 +1,4 @@
 import os
-from typing import Any, Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -106,7 +105,7 @@ def test_analyze_commits_with_gpt_empty_response(
         MagicMock(message=MagicMock(content=None))
     ]
     reporter = DailyReporter()
-    commits: list[dict[str, Any]] = [
+    commits: list[dict[str, str]] = [
         {"sha": "abc", "message": "msg", "author": "a", "url": "", "date": ""}
     ]
     result = reporter.analyze_commits_with_gpt(commits)
