@@ -111,6 +111,7 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         subject = f"GitHub Daily Report – {self.REPO_NAME} – {today}"
         filename = f"{today}-{self.REPO_NAME.replace('/', '-')}.md"
+        os.environ["DAILY_REPORT_FILENAME"] = filename
 
         commit_data = self.collect_commits()
         report_md = self.analyze_commits_with_gpt(commit_data)
