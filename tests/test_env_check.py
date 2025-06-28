@@ -25,7 +25,7 @@ def clear_env(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(key, raising=False)
 
 
-def valid_env() -> Dict[str, str]:
+def valid_env() -> dict[str, str]:
     return {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",

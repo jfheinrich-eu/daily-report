@@ -21,7 +21,7 @@ def cleanup_report_file() -> None:
     assert not os.path.exists(filename)
 
 
-def valid_env() -> Dict[str, str]:
+def valid_env() -> dict[str, str]:
     return {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",
@@ -40,7 +40,10 @@ def valid_env() -> Dict[str, str]:
 @patch("daily_report.daily_reporter.OpenAI")
 @patch("daily_report.daily_reporter.open")
 def test_run_sends_email(
-    mock_open: MagicMock, mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
+    mock_open: MagicMock,
+    mock_openai: MagicMock,
+    mock_github: MagicMock,
+    mock_check_env_vars: MagicMock,
 ) -> None:
     # Arrange
     env = valid_env()
@@ -103,7 +106,7 @@ def test_analyze_commits_with_gpt_empty_response(
         MagicMock(message=MagicMock(content=None))
     ]
     reporter = DailyReporter()
-    commits: List[Dict[str, Any]] = [
+    commits: list[dict[str, Any]] = [
         {"sha": "abc", "message": "msg", "author": "a", "url": "", "date": ""}
     ]
     result = reporter.analyze_commits_with_gpt(commits)
@@ -161,11 +164,12 @@ def test_collect_commits(
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
-def test_init_env_error(
-    mock_check_env_vars: MagicMock
-) -> None:
+def test_init_env_error(mock_check_env_vars: MagicMock) -> None:
     mock_check_env_vars.side_effect = EnvCheckError("fail")
-    with patch("builtins.print"), patch("sys.exit", side_effect=SystemExit) as mock_exit:
+    with (
+        patch("builtins.print"),
+        patch("sys.exit", side_effect=SystemExit) as mock_exit,
+    ):
         with pytest.raises(SystemExit):
             DailyReporter()
         mock_exit.assert_called_once()

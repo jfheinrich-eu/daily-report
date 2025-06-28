@@ -1,6 +1,6 @@
-import tempfile
 import os
-from unittest.mock import patch, MagicMock
+import tempfile
+from unittest.mock import MagicMock, patch
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
