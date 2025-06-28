@@ -1,0 +1,48 @@
+name: "GitHub Daily Report"
+description: "Generates a daily GitHub report and returns it as an output."
+author: "Joerg Heinrich"
+inputs:
+  GITHUB_TOKEN:
+    description: "GitHub Token"
+    required: true
+  REPO_NAME:
+    description: "Repository name (owner/repo)"
+    required: true
+  EMAIL_SENDER:
+    description: "Email sender"
+    required: true
+  EMAIL_USER:
+    description: "Email user"
+    required: true
+  EMAIL_RECEIVER:
+    description: "Email recipient"
+    required: true
+  EMAIL_PASSWORD:
+    description: "Email password"
+    required: true
+  OPENAI_API_KEY:
+    description: "OpenAI API key"
+    required: true
+  SMTP_SERVER:
+    description: "SMTP server"
+    required: true
+  SMTP_PORT:
+    description: "SMTP port"
+    required: true
+outputs:
+  report:
+    description: "The generated Markdown report"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    REPO_NAME: ${{ inputs.REPO_NAME }}
+    EMAIL_SENDER: ${{ inputs.EMAIL_SENDER }}
+    EMAIL_USER: ${{ inputs.EMAIL_USER }}
+    EMAIL_RECEIVER: ${{ inputs.EMAIL_RECEIVER }}
+    EMAIL_PASSWORD: ${{ inputs.EMAIL_PASSWORD }}
+    OPENAI_API_KEY: ${{ inputs.OPENAI_API_KEY }}
+    SMTP_SERVER: ${{ inputs.SMTP_SERVER }}
+    SMTP_PORT: ${{ inputs.SMTP_PORT }}
+  args: []

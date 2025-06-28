@@ -1,0 +1,84 @@
+[project]
+name = "daily-report"
+dynamic = ["version"]
+description = "GitHub Daily Report Generator (Markdown + Email)"
+authors = [{ name = "Joerg Heinrich", email = "contact@jfheinrich.eu" }]
+license = { text = "MIT" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Communications :: Email",
+]
+requires-python = ">=3.12"
+dependencies = ["pygithub (>=2.6.1,<3.0.0)", "openai (>=1.90.0,<2.0.0)"]
+
+[project.urls]
+Homepage = "https://github.com/jfheinrich-eu/daily-report"
+Repository = "https://github.com/jfheinrich-eu/daily-report"
+Issues = "https://github.com/jfheinrich-eu/daily-report/issues"
+Changelog = "https://github.com/jfheinrich-eu/daily-report/releases"
+Logo = "https://github.com/jfheinrich-eu/daily-report/raw/main/daily-report-logo.png"
+
+[tool.poetry]
+version = "0.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-cov = "^6.2.1"
+coverage = "^7.9.1"
+build = "^1.2.2.post1"
+twine = "^6.1.0"
+flake8 = "^7.3.0"
+flake8-pyproject = "^1.2.3"
+flake8-quotes = "^3.4.0"
+poethepoet = "^0.35.0"
+black = "^25.1.0"
+isort = "^6.0.1"
+pyupgrade = "^3.20.0"
+pre-commit = "^4.2.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --tb=short --strict-markers --cov=daily_report --cov-report=term-missing --cov-report=html:coverage"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+pythonpath = ["src"]
+testpaths = ["tests"]
+log_cli = true
+log_cli_level = "INFO"
+
+[tool.coverage.run]
+branch = true
+source = ["daily_report"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[[tool.poetry.source]]
+name = "pypi-public"
+url = "https://pypi.org/simple/"
+
+[tool.flake8]
+max_line_length = 88
+ignore = ["E501", "E402"]
+inline-quotes = "double"
+exclude = [".git", "__pycache__", "build", "dist", ".poetry"]
+
+[tool.poetry.requires-plugins]
+poethepoet = { version = "~0.35.0", extras = ["poetry_plugin"] }
+
+[tool.poe.tasks]
+test = "pytest"
+build = "poetry build"
+serve = "python -m http.server -d ./coverage"
+pre-commit = "pre-commit run --all-files"
