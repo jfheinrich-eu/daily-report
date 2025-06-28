@@ -1,6 +1,5 @@
 [project]
 name = "daily-report"
-version = "0.0.0"
 dynamic = ["version"]
 description = "GitHub Daily Report Generator (Markdown + Email)"
 authors = [{ name = "Joerg Heinrich", email = "contact@jfheinrich.eu" }]
@@ -25,7 +24,7 @@ Changelog = "https://github.com/jfheinrich-eu/daily-report/releases"
 Logo = "https://github.com/jfheinrich-eu/daily-report/raw/main/daily-report-logo.png"
 
 [tool.poetry]
-packages = [{ include = "daily_report", from = "src" }]
+version = "0.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
@@ -35,6 +34,7 @@ build = "^1.2.2.post1"
 twine = "^6.1.0"
 flake8 = "^7.3.0"
 flake8-pyproject = "^1.2.3"
+flake8-quotes = "^3.4.0"
 poethepoet = "^0.35.0"
 black = "^25.1.0"
 isort = "^6.0.1"
