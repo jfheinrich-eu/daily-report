@@ -30,9 +30,9 @@ jobs:
           secret_fields: "password"
           mask_secrets: "password"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
-      - uses: jefflinse/pr-semver-bump@v1.7.2
+      - uses: jefflinse/pr-semver-bump@v1.7.1
         name: Bump and Tag Version
         with:
           mode: bump

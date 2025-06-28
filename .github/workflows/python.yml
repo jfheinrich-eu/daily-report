@@ -10,12 +10,12 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v5.5.0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.12"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Install dependencies
         run: |
@@ -28,13 +28,13 @@ jobs:
 
       - name: Automatic requirements.txt for Python Project
         continue-on-error: true
-        uses: jfheinrich-eu/pipreqs-action@v4.2.7
+        uses: jfheinrich-eu/pipreqs-action@v4.3.0
         with:
           PROJECT_PATH: .
           REQUIREMENT_PATH: requirements.txt
           RECURSIVE: "false"
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v3.0.2
         id: changes
         with:
           filters: |
@@ -43,7 +43,7 @@ jobs:
 
       - name: Commit changes
         if: steps.changes.outputs.src == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6.0.1
         with:
           branch: ${{ github.ref_name }}
           commit_message: "Updated requirements file on ${{ github.ref_name }} [skip-ci]"
