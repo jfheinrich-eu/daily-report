@@ -26,25 +26,25 @@ jobs:
         run: |
           poetry run flake8 .
 
-      - name: Automatic requirements.txt for Python Project
-        continue-on-error: true
-        uses: jfheinrich-eu/pipreqs-action@v4.3.0
-        with:
-          PROJECT_PATH: .
-          REQUIREMENT_PATH: requirements.txt
-          RECURSIVE: "false"
+      # - name: Automatic requirements.txt for Python Project
+      #   continue-on-error: true
+      #   uses: jfheinrich-eu/pipreqs-action@v4.3.0
+      #   with:
+      #     PROJECT_PATH: .
+      #     REQUIREMENT_PATH: requirements.txt
+      #     RECURSIVE: "false"
 
-      - uses: dorny/paths-filter@v3.0.2
-        id: changes
-        with:
-          filters: |
-            src:
-              - 'requirements.txt'
+      # - uses: dorny/paths-filter@v3.0.2
+      #   id: changes
+      #   with:
+      #     filters: |
+      #       src:
+      #         - 'requirements.txt'
 
-      - name: Commit changes
-        if: steps.changes.outputs.src == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v6.0.1
-        with:
-          branch: ${{ github.ref_name }}
-          commit_message: "Updated requirements file on ${{ github.ref_name }} [skip-ci]"
-          file_pattern: requirements.txt
+      # - name: Commit changes
+      #   if: steps.changes.outputs.src == 'true'
+      #   uses: stefanzweifel/git-auto-commit-action@v6.0.1
+      #   with:
+      #     branch: ${{ github.ref_name }}
+      #     commit_message: "Updated requirements file on ${{ github.ref_name }} [skip-ci]"
+      #     file_pattern: requirements.txt
