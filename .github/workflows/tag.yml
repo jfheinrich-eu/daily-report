@@ -25,6 +25,7 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
+          includeInvalidCommits: true
 
       - name: Write changelog changes to file
         id: changelog-changes
