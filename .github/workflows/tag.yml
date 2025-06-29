@@ -28,7 +28,9 @@ jobs:
 
       - name: Write changelog changes to file
         id: changelog-changes
-        run: echo "${{ steps.changelog.outputs.changes }}" >> CHANGELOG-changes.md
+        env:
+          CHANGELOG: ${{ steps.changelog.outputs.changes }}
+        run: echo "${CHANGELOG}" >> CHANGELOG-changes.md
 
       - name: Create Release
         uses: actions/create-release@v1.1.4
