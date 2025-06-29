@@ -3,6 +3,7 @@ name: Daily Report
 on:
   schedule:
     - cron: '0 6 * * *'  # Runs daily at 06:00 UTC
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -6,7 +6,7 @@ COPY src/ ./src/
 # Install dependencies
 COPY pyproject.toml poetry.lock* ./
 
-RUN pip install poetry && poetry install --no-interaction --no-ansi --only main
+RUN pip install poetry && poetry install --no-interaction --no-ansi --no-root --only main
 
 WORKDIR /src
 
