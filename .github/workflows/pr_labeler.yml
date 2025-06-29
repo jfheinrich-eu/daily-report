@@ -6,8 +6,8 @@ on:
 jobs:
   labeler:
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2

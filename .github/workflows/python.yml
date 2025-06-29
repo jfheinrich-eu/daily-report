@@ -1,7 +1,6 @@
 name: Lint
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 on: [push]
 
@@ -20,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade poetry
-          poetry install --with dev
+          poetry install --no-root --with dev
 
       - name: Lint
         run: |
