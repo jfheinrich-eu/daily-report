@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - id: setup-secrets-gh-token
         name: Setup secrets
-        uses: jfheinrich-eu/psono-secret-whisperer@v1.0.0
+        uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
         with:
           ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
           ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
@@ -29,7 +29,7 @@ jobs:
 
       - name: Fetch secrets from Psono
         id: setup-secrets
-        uses: jfheinrich-eu/psono-secret-whisperer@v1.0.0
+        uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
         with:
             ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
             ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
