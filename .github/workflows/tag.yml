@@ -45,6 +45,6 @@ jobs:
       - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
         with:
-          branch: master
+          branch: main
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
           file_pattern: CHANGELOG.md

@@ -1,10 +1,12 @@
 import os
 import smtplib
 from datetime import datetime, timedelta, timezone
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any
 
+import markdown
 from github import Github
 from openai import OpenAI
 
@@ -84,10 +86,14 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         msg["From"] = self.EMAIL_SENDER
         msg["To"] = self.EMAIL_RECEIVER
 
+        html_body = markdown.markdown(body_md)
+        if not html_body:
+            raise ValueError("Failed to convert Markdown to HTML.")
+
         html = f"""
         <html>
           <body>
-            <pre style='font-family: monospace;'>{body_md}</pre>
+            {html_body}
           </body>
         </html>
         """
@@ -96,6 +102,10 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         part2 = MIMEText(html, "html")
         msg.attach(part1)
         msg.attach(part2)
+
+        attachment = MIMEApplication(body_md.encode("utf-8"), Name="report.md")
+        attachment["Content-Disposition"] = "attachment; filename='report.md'"
+        msg.attach(attachment)
 
         with smtplib.SMTP(self.SMTP_SERVER, port=self.SMTP_PORT) as server:
             server.ehlo()
