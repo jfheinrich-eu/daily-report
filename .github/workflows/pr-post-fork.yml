@@ -1,36 +1,34 @@
-name: Release Info
-permissions:
-  contents: read
-  pull-requests: write
-
+name: PR Label & Notes Check
 on:
-  pull_request:
+  workflow_run:
+    workflows: ["Release Info"]
     types:
-      [
-        labeled,
-        unlabeled,
-        opened,
-        edited,
-        reopened,
-        synchronize,
-        ready_for_review,
-      ]
+      - completed
 
 jobs:
   generate-pr-description:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Generate the description on the pull request
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     defaults:
       run:
         shell: bash
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: octue/generate-pull-request-description@b5257de511dfdd6e1de7adee90b62b6279ce40a0 # 1.0.0.beta-2
         id: pr-description
         with:
-          pull_request_url: ${{ github.event.pull_request.url }}
+          pull_request_url: ${{ github.event.workflow_run.pull_requests.url }}
           api_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update pull request body
@@ -40,15 +38,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   check-pr:
-    if: ${{ github.actor != 'dependabo[bot]' }}
-    needs: generate-pr-description
-    name: Validate Release Label and Notes
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
       - id: setup-secrets
         name: Setup secrets
         uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
@@ -60,8 +58,6 @@ jobs:
           secret_type: "secret"
           secret_fields: "password"
           mask_secrets: "password"
-
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: jefflinse/pr-semver-bump@a0f7df89cce6675d4b4cc249327882d1788a726b # v1.7.1
         name: Validate Pull Request Metadata

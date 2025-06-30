@@ -1,0 +1,25 @@
+# This workflow is triggered after the "Pull Request Labeler" workflow completes successfully.
+
+name: PR Labeler Post Fork
+on:
+  workflow_run:
+    workflows: ["Pull Request Labeler"]
+    types:
+      - completed
+
+jobs:
+  labeler-post-fork:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set labels (main repo context)
+        uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
