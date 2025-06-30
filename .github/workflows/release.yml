@@ -18,6 +18,11 @@ jobs:
         shell: bash
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+        with:
+          egress-policy: audit
+
       - id: setup-secrets
         name: Setup secrets
         uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
