@@ -1,4 +1,5 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from daily_report.daily_reporter import DailyReporter
@@ -23,7 +24,10 @@ def valid_env() -> dict[str, str]:
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_send_email_markdown_to_html_and_attachment(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_smtp: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,
+    mock_github: MagicMock,
+    mock_smtp: MagicMock,
+    mock_check_env_vars: MagicMock,
 ) -> None:
     env = valid_env()
     mock_check_env_vars.return_value = env
@@ -45,7 +49,9 @@ def test_send_email_markdown_to_html_and_attachment(
     reporter = DailyReporter()
 
     # Patch markdown.markdown to return valid HTML
-    with patch("daily_report.daily_reporter.markdown.markdown", return_value="<p>Test</p>") as mock_md:
+    with patch(
+        "daily_report.daily_reporter.markdown.markdown", return_value="<p>Test</p>"
+    ) as mock_md:
         reporter.send_email("subject", "# Test Markdown")
         mock_md.assert_called_once_with("# Test Markdown")
         # SMTP sendmail should be called
@@ -57,7 +63,10 @@ def test_send_email_markdown_to_html_and_attachment(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_send_email_markdown_to_html_empty_raises(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_smtp: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,
+    mock_github: MagicMock,
+    mock_smtp: MagicMock,
+    mock_check_env_vars: MagicMock,
 ) -> None:
     env = valid_env()
     mock_check_env_vars.return_value = env
