@@ -6,10 +6,11 @@ permissions:
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+' # Match semantic versioning tags like v1.0.0, v2.3.4, etc.'
 
 jobs:
   release:
+    if: github.repository == 'jfheinrich-eu/daily-report'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,12 +45,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: 'Release ${{ github.ref_name }}'
+          release_name: "Release ${{ github.ref_name }}"
           body_path: CHANGELOG-changes.md
 
       - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
         with:
           branch: main
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          commit_message: "docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]"
           file_pattern: CHANGELOG.md

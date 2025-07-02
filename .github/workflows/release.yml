@@ -11,6 +11,7 @@ on:
 
 jobs:
   bump-tag-version:
+    if: github.repository == 'jfheinrich-eu/daily-report' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Bump and Tag Version
     runs-on: ubuntu-latest
     defaults:
