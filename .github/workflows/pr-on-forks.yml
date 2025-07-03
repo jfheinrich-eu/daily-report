@@ -20,7 +20,6 @@ jobs:
   generate-pr-description:
     name: Generate the description on the pull request
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name != github.repository # Nur im Hauptrepo
     defaults:
       run:
         shell: bash
