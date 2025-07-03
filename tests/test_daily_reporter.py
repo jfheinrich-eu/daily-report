@@ -1,3 +1,5 @@
+"""Unit tests for the DailyReporter class and environment validation."""
+
 import os
 from unittest.mock import MagicMock, patch
 
@@ -9,18 +11,16 @@ from daily_report.env_check import EnvCheckError
 
 def cleanup_report_file() -> None:
     """Remove the report file if it exists."""
-    # Check if the file was created
     assert "DAILY_REPORT_FILENAME" in os.environ
     filename = os.environ.get("DAILY_REPORT_FILENAME")
     assert filename is not None
     assert os.path.exists(filename)
-
-    # Clean up: remove the file
     os.remove(filename)
     assert not os.path.exists(filename)
 
 
 def valid_env() -> dict[str, str]:
+    """Return a valid environment variable dictionary for testing."""
     return {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",
@@ -44,7 +44,7 @@ def test_run_sends_email(
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
 ) -> None:
-    # Arrange
+    """Test that DailyReporter.run sends an email and writes the report file."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -66,11 +66,9 @@ def test_run_sends_email(
 
     mock_open.return_value.__enter__.return_value = MagicMock()
 
-    # Patch smtplib.SMTP
-    with patch("daily_report.daily_reporter.smtplib.SMTP") as _mock_smtp:  # noqa: F841
+    with patch("daily_report.daily_reporter.smtplib.SMTP"):
         reporter = DailyReporter()
         reporter.run()
-
     # cleanup_report_file()
 
 
@@ -78,8 +76,11 @@ def test_run_sends_email(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_analyze_commits_with_gpt_empty(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,  # pylint: disable=unused-argument
+    mock_github: MagicMock,  # pylint: disable=unused-argument
+    mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
 ) -> None:
+    """Test analyze_commits_with_gpt returns correct message for empty commit list."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -87,7 +88,6 @@ def test_analyze_commits_with_gpt_empty(
     reporter = DailyReporter()
     result = reporter.analyze_commits_with_gpt([])
     assert "No commits" in result
-
     # cleanup_report_file()
 
 
@@ -95,8 +95,11 @@ def test_analyze_commits_with_gpt_empty(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_analyze_commits_with_gpt_empty_response(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,
+    mock_github: MagicMock,  # pylint: disable=unused-argument
+    mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
 ) -> None:
+    """Test analyze_commits_with_gpt returns correct message for empty GPT response."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -110,7 +113,6 @@ def test_analyze_commits_with_gpt_empty_response(
     ]
     result = reporter.analyze_commits_with_gpt(commits)
     assert "No summary generated" in result
-
     # cleanup_report_file()
 
 
@@ -118,8 +120,11 @@ def test_analyze_commits_with_gpt_empty_response(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_send_email_password_missing(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,  # pylint: disable=unused-argument
+    mock_github: MagicMock,  # pylint: disable=unused-argument
+    mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
 ) -> None:
+    """Test send_email raises ValueError if EMAIL_PASSWORD is missing."""
     env = valid_env()
     env["EMAIL_PASSWORD"] = ""
     for k, v in env.items():
@@ -129,7 +134,6 @@ def test_send_email_password_missing(
     with patch("daily_report.daily_reporter.smtplib.SMTP"):
         with pytest.raises(ValueError):
             reporter.send_email("subject", "body")
-
     # cleanup_report_file()
 
 
@@ -137,8 +141,11 @@ def test_send_email_password_missing(
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
 def test_collect_commits(
-    mock_openai: MagicMock, mock_github: MagicMock, mock_check_env_vars: MagicMock
+    mock_openai: MagicMock,  # pylint: disable=unused-argument
+    mock_github: MagicMock,
+    mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
 ) -> None:
+    """Test collect_commits returns a list of commit dictionaries."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -158,12 +165,12 @@ def test_collect_commits(
     commits = reporter.collect_commits()
     assert isinstance(commits, list)
     assert commits[0]["message"] == "test"
-
     # cleanup_report_file()
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
 def test_init_env_error(mock_check_env_vars: MagicMock) -> None:
+    """Test that DailyReporter exits if environment validation fails."""
     mock_check_env_vars.side_effect = EnvCheckError("fail")
     with (
         patch("builtins.print"),
@@ -172,5 +179,4 @@ def test_init_env_error(mock_check_env_vars: MagicMock) -> None:
         with pytest.raises(SystemExit):
             DailyReporter()
         mock_exit.assert_called_once()
-
     # cleanup_report_file()
