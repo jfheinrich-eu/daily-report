@@ -1,6 +1,10 @@
+"""Unit test for verifying GitHub Actions output file integration in DailyReporter."""
+
 import os
 import tempfile
 from unittest.mock import MagicMock, patch
+
+from daily_report.daily_reporter import DailyReporter
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
@@ -8,11 +12,12 @@ from unittest.mock import MagicMock, patch
 @patch("daily_report.daily_reporter.OpenAI")
 @patch("daily_report.daily_reporter.smtplib.SMTP")
 def test_github_output_written(
-    mock_smtp: MagicMock,
+    mock_smtp: MagicMock,  # pylint: disable=unused-argument
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
 ) -> None:
+    """Test that the GitHub Actions output file is written with the report content."""
     env = {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",
@@ -39,8 +44,6 @@ def test_github_output_written(
     mock_openai.return_value.chat.completions.create.return_value.choices = [
         MagicMock(message=MagicMock(content="Test-Report"))
     ]
-
-    from daily_report.daily_reporter import DailyReporter
 
     with tempfile.NamedTemporaryFile(mode="r+", delete=False) as tmpfile:
         os.environ["GITHUB_OUTPUT"] = tmpfile.name
