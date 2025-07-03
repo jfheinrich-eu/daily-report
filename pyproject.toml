@@ -41,6 +41,7 @@ black = "^25.1.0"
 isort = "^6.0.1"
 pyupgrade = "^3.20.0"
 pre-commit = "^4.2.0"
+pylint = "^3.3.7"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -88,5 +89,5 @@ test = "pytest"
 build = "poetry build"
 serve = "python -m http.server -d ./coverage"
 pre-commit = "pre-commit run --all-files"
-requirements = "poetry export -f requirements.txt --without-hashes --dev"
+requirements = "poetry export -f requirements.txt --without-hashes --all-groups -o requirements.txt"
 lint = "flake8 ."

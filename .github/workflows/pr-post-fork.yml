@@ -22,13 +22,29 @@ jobs:
         uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
           egress-policy: audit
+          allowed-endpoints: |
+            github.com:443
+            api.github.com:443
+            pre-commit.ci:443
+            results.pre-commit.ci:443
+
+      - name: Download PR URL artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: pr-url
+
+      - name: Read PR URL
+        id: pr_url
+        run: |
+          PR_URL=$(cat pr_url.txt)
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: octue/generate-pull-request-description@b5257de511dfdd6e1de7adee90b62b6279ce40a0 # 1.0.0.beta-2
         id: pr-description
         with:
-          pull_request_url: ${{ github.event.workflow_run.pull_requests.url }}
+          pull_request_url: ${{ steps.pr_url.outputs.pr_url }}
           api_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update pull request body

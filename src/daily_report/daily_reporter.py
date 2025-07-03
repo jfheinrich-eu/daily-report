@@ -1,5 +1,28 @@
+"""This module provides the `DailyReporter` class, which generates, analyzes,
+and sends daily reports of GitHub commits for a repository via email.
+
+Main features:
+- Loads and validates required environment variables for GitHub, OpenAI,
+  and email configuration.
+- Collects commits from the last two days from a specified GitHub repository.
+- Analyzes commits using OpenAI GPT, generates a daily summary in Markdown
+  format, and provides recommendations for possible issues, TODOs, or code smells.
+- Sends the generated report via email
+  (as Markdown text, HTML, and as an attachment).
+- Saves the report locally as a Markdown file and optionally outputs it for
+  GitHub Actions.
+
+Dependencies:
+- env_check (local module for environment variable validation)
+
+Usage example:
+from daily_report import DailyReporter
+"""
+
 import os
+import re
 import smtplib
+import sys
 from datetime import datetime, timedelta, timezone
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -14,31 +37,33 @@ from .env_check import EnvCheckError, check_env_vars
 
 
 class DailyReporter:
-    def __init__(self):
+    """Generates and sends a daily GitHub report via email."""
+
+    # pylint: disable=too-many-instance-attributes
+    def __init__(self) -> None:
         try:
             env = check_env_vars()
-        except EnvCheckError as e:
+        except EnvCheckError as exc:
             print("❌ Invalid configuration of environment variables:")
-            print(e)
-            import sys
-
+            print(exc)
             sys.exit(1)
 
-        self.GITHUB_TOKEN = env["GITHUB_TOKEN"]
-        self.REPO_NAME = env["REPO_NAME"]
-        self.EMAIL_SENDER = env["EMAIL_SENDER"]
-        self.EMAIL_USER = env["EMAIL_USER"]
-        self.EMAIL_RECEIVER = env["EMAIL_RECEIVER"]
-        self.EMAIL_PASSWORD = env["EMAIL_PASSWORD"]
-        self.OPENAI_API_KEY = env["OPENAI_API_KEY"]
-        self.SMTP_SERVER = env["SMTP_SERVER"]
-        self.SMTP_PORT = int(env["SMTP_PORT"])
+        self.github_token: str = env["GITHUB_TOKEN"]
+        self.repo_name: str = env["REPO_NAME"]
+        self.email_sender: str = env["EMAIL_SENDER"]
+        self.email_user: str = env["EMAIL_USER"]
+        self.email_receiver: str = env["EMAIL_RECEIVER"]
+        self.email_password: str = env["EMAIL_PASSWORD"]
+        self.openai_api_key: str = env["OPENAI_API_KEY"]
+        self.smtp_server: str = env["SMTP_SERVER"]
+        self.smtp_port: int = int(env["SMTP_PORT"])
 
-        self.client = OpenAI(api_key=self.OPENAI_API_KEY)
-        self.github = Github(self.GITHUB_TOKEN)
-        self.repo = self.github.get_repo(self.REPO_NAME)
+        self.client = OpenAI(api_key=self.openai_api_key)
+        self.github = Github(self.github_token)
+        self.repo = self.github.get_repo(self.repo_name)
 
-    def collect_commits(self):
+    def collect_commits(self) -> list[dict[str, Any]]:
+        """Collects commits from the last 2 days."""
         since = datetime.now(timezone.utc) - timedelta(days=2)
         commits = self.repo.get_commits(since=since)
         commit_data: list[dict[str, Any]] = []
@@ -55,6 +80,7 @@ class DailyReporter:
         return commit_data
 
     def analyze_commits_with_gpt(self, commits: list[dict[str, Any]]) -> str:
+        """Analyzes commits using OpenAI GPT and returns a Markdown summary."""
         if not commits:
             return "No commits in the last 24 hours."
 
@@ -77,26 +103,26 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         content = response.choices[0].message.content
         if content is not None:
             return content.strip()
-        else:
-            return "No summary generated (response was empty)."
+        return "No summary generated (response was empty)."
 
-    def send_email(self, subject: str, body_md: str):
+    def send_email(self, subject: str, body_md: str) -> None:
+        """Sends an email with the report as HTML and Markdown attachment."""
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = self.EMAIL_SENDER
-        msg["To"] = self.EMAIL_RECEIVER
+        msg["From"] = self.email_sender
+        msg["To"] = self.email_receiver
 
         html_body = markdown.markdown(body_md)
         if not html_body:
             raise ValueError("Failed to convert Markdown to HTML.")
 
-        html = f"""
-        <html>
-          <body>
-            {html_body}
-          </body>
-        </html>
-        """
+        html = f"""\
+<html>
+  <body>
+    {html_body}
+  </body>
+</html>
+"""
 
         part1 = MIMEText(body_md, "plain")
         part2 = MIMEText(html, "html")
@@ -104,37 +130,49 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         msg.attach(part2)
 
         attachment = MIMEApplication(body_md.encode("utf-8"), Name="report.md")
-        attachment["Content-Disposition"] = "attachment; filename='report.md'"
+        attachment["Content-Disposition"] = 'attachment; filename="report.md"'
         msg.attach(attachment)
 
-        with smtplib.SMTP(self.SMTP_SERVER, port=self.SMTP_PORT) as server:
+        with smtplib.SMTP(self.smtp_server, port=self.smtp_port) as server:
             server.ehlo()
             server.starttls()
-            if not self.EMAIL_PASSWORD:
+            if not self.email_password:
                 raise ValueError(
                     "EMAIL_PASSWORD environment variable is not set or is empty."
                 )
-            server.login(self.EMAIL_USER, self.EMAIL_PASSWORD)
-            server.sendmail(self.EMAIL_SENDER, self.EMAIL_RECEIVER, msg.as_string())
+            server.login(self.email_user, self.email_password)
+            server.sendmail(self.email_sender, self.email_receiver, msg.as_string())
 
-    def run(self):
+    @staticmethod
+    def _sanitize_filename(filename: str) -> str:
+        """Sanitize filename to prevent path injection."""
+        # Remove directory components and allow only safe chars
+        filename = os.path.basename(filename)
+        filename = re.sub(r"[^a-zA-Z0-9_\-\.]", "_", filename)
+        return filename
+
+    def run(self) -> None:
+        """Runs the report generation and email sending process."""
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        subject = f"GitHub Daily Report – {self.REPO_NAME} – {today}"
-        filename = f"{today}-{self.REPO_NAME.replace('/', '-')}.md"
+        # Sanitize repo_name for filename to prevent path injection
+        safe_repo_name = self._sanitize_filename(self.repo_name.replace("/", "-"))
+        filename = f"{today}-{safe_repo_name}.md"
         os.environ["DAILY_REPORT_FILENAME"] = filename
+
+        subject = f"GitHub Daily Report – {self.repo_name} – {today}"
 
         commit_data = self.collect_commits()
         report_md = self.analyze_commits_with_gpt(commit_data)
         self.send_email(subject, report_md)
 
-        # Save report to file
-        with open(filename, "w") as reportfile:
+        # Save report to file (safe filename)
+        with open(filename, "w", encoding="utf-8") as reportfile:
             reportfile.write(report_md)
 
         # Provide output for GitHub Actions
         github_output = os.environ.get("GITHUB_OUTPUT")
         if github_output:
-            with open(github_output, "a") as fh:
+            with open(github_output, "a", encoding="utf-8") as fh:
                 print(f"report<<EOF\n{report_md}\nEOF", file=fh)
 
         print("✅ Report generated and sent.")

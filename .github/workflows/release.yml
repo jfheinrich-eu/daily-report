@@ -11,6 +11,7 @@ on:
 
 jobs:
   bump-tag-version:
+    if: github.repository == 'jfheinrich-eu/daily-report' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Bump and Tag Version
     runs-on: ubuntu-latest
     defaults:
@@ -22,6 +23,11 @@ jobs:
         uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
           egress-policy: audit
+          allowed-endpoints: |
+            github.com:443
+            api.github.com:443
+            pre-commit.ci:443
+            results.pre-commit.ci:443
 
       - id: setup-secrets
         name: Setup secrets

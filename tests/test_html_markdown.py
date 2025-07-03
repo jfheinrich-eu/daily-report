@@ -1,3 +1,5 @@
+"""Unit tests for Markdown to HTML conversion and email attachment in DailyReporter."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -6,6 +8,7 @@ from daily_report.daily_reporter import DailyReporter
 
 
 def valid_env() -> dict[str, str]:
+    """Return a valid environment variable dictionary for testing."""
     return {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",
@@ -29,6 +32,7 @@ def test_send_email_markdown_to_html_and_attachment(
     mock_smtp: MagicMock,
     mock_check_env_vars: MagicMock,
 ) -> None:
+    """Test that Markdown is converted to HTML and attached as a file in the email."""
     env = valid_env()
     mock_check_env_vars.return_value = env
 
@@ -65,9 +69,10 @@ def test_send_email_markdown_to_html_and_attachment(
 def test_send_email_markdown_to_html_empty_raises(
     mock_openai: MagicMock,
     mock_github: MagicMock,
-    mock_smtp: MagicMock,
+    mock_smtp: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,
 ) -> None:
+    """Test that a ValueError is raised if Markdown to HTML conversion returns an empty string."""
     env = valid_env()
     mock_check_env_vars.return_value = env
 
