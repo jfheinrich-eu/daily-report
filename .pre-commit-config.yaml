@@ -41,3 +41,4 @@ repos:
     rev: v3.3.7
     hooks:
       - id: pylint
+        language: system
