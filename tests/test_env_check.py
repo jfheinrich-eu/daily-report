@@ -1,14 +1,17 @@
+"""Unit tests for environment variable validation in the Daily Reporter project."""
+
 import os
 from unittest.mock import MagicMock, patch
 
 import pytest
+from github.GithubException import GithubException
 
 from daily_report.env_check import EnvCheckError, check_env_vars
 
 
 @pytest.fixture(autouse=True)
 def clear_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Remove all relevant env variables before each test
+    """Automatically clear all relevant environment variables before each test."""
     keys = [
         "GITHUB_TOKEN",
         "REPO_NAME",
@@ -25,6 +28,7 @@ def clear_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def valid_env() -> dict[str, str]:
+    """Return a dictionary with valid environment variables for testing."""
     return {
         "GITHUB_TOKEN": "token",
         "REPO_NAME": "owner/repo",
@@ -40,8 +44,10 @@ def valid_env() -> dict[str, str]:
 
 @patch("daily_report.env_check.Github")
 def test_check_env_vars_success(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars returns the environment dictionary if all variables are valid."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
@@ -54,8 +60,10 @@ def test_check_env_vars_success(
 
 @patch("daily_report.env_check.Github")
 def test_missing_env_vars_raises(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,  # pylint: disable=unused-argument
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars raises EnvCheckError if a required variable is missing."""
     env = valid_env()
     for k, v in env.items():
         if k != "REPO_NAME":
@@ -67,21 +75,29 @@ def test_missing_env_vars_raises(
 
 @patch("daily_report.env_check.Github")
 def test_invalid_repo_raises(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars raises EnvCheckError if the repository
+    is invalid or inaccessible."""
     env = valid_env()
     for k, v in env.items():
         os.environ[k] = v
-    mock_github.return_value.get_repo.side_effect = Exception("not found")
+    # Raise GithubException instead of generic Exception
+    mock_github.return_value.get_repo.side_effect = GithubException(
+        404, "not found", None
+    )
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
-    assert "is invalid or not accessible:" in str(excinfo.value)
+    assert "invalid or not accessible" in str(excinfo.value)
 
 
 @patch("daily_report.env_check.Github")
 def test_invalid_smtp_port_nonint(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars raises EnvCheckError if SMTP_PORT is not an integer."""
     env = valid_env()
     env["SMTP_PORT"] = "abc"
     for k, v in env.items():
@@ -94,8 +110,10 @@ def test_invalid_smtp_port_nonint(
 
 @patch("daily_report.env_check.Github")
 def test_invalid_smtp_port_range(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars raises EnvCheckError if SMTP_PORT is out of valid range."""
     env = valid_env()
     env["SMTP_PORT"] = "70000"
     for k, v in env.items():
@@ -108,8 +126,11 @@ def test_invalid_smtp_port_range(
 
 @patch("daily_report.env_check.Github")
 def test_all_env_vars_missing(
-    mock_github: MagicMock, monkeypatch: pytest.MonkeyPatch
+    mock_github: MagicMock,  # pylint: disable=unused-argument
+    monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument
 ) -> None:
+    """Test that check_env_vars raises EnvCheckError and reports all
+    missing variables if none are set."""
     # No env vars set at all
     with pytest.raises(EnvCheckError) as excinfo:
         check_env_vars()
