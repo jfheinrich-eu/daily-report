@@ -1,10 +1,23 @@
+"""
+env_check.py
+
+This module provides environment variable validation for the Daily Reporter project.
+It defines a custom exception (EnvCheckError) and a function (check_env_vars) that
+checks for the presence and plausibility of all required environment variables for
+GitHub, email, and OpenAI integration. If any variable is missing or invalid, an
+EnvCheckError is raised with a detailed message.
+"""
+
 import os
 
 from github import Github
+from github.GithubException import GithubException
 
 
 class EnvCheckError(Exception):
-    pass
+    """Custom exception raised when required environment variables are missing or invalid
+    during environment validation for the Daily Reporter project.
+    """
 
 
 def check_env_vars() -> dict[str, str]:
@@ -34,7 +47,7 @@ def check_env_vars() -> dict[str, str]:
         try:
             g = Github(env["GITHUB_TOKEN"])
             g.get_repo(env["REPO_NAME"])
-        except Exception as e:
+        except (AttributeError, ValueError, TypeError, GithubException) as e:
             errors.append(
                 f"REPO_NAME '{env['REPO_NAME']}' is invalid or not accessible: {e}"
             )
@@ -42,7 +55,7 @@ def check_env_vars() -> dict[str, str]:
     if env["SMTP_PORT"]:
         try:
             port = int(env["SMTP_PORT"])
-            if not (0 < port < 65536):
+            if not 0 < port < 65536:
                 errors.append(
                     f"SMTP_PORT '{env['SMTP_PORT']}' is not a valid port number."
                 )
