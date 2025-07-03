@@ -41,4 +41,11 @@ repos:
     rev: v3.3.7
     hooks:
       - id: pylint
+        name: pylint-main
         language: system
+        files: ^src/
+      - id: pylint
+        name: pylint-tests
+        language: system
+        args: ["--rcfile=tests/.pylintrc"]
+        files: ^tests/
